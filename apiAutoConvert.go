@@ -12,10 +12,11 @@ import (
 
 func apiAutoConvert(c *gin.Context) {
 	var resp struct {
-		FileName string `json:"filename"`
-		MimeType string `json:"mime"`
-		Text     string `json:"text"`
-		Error    error  `json:"error,omitempty"`
+		FileName      string `json:"filename"`
+		MimeType      string `json:"mime"`
+		Text          string `json:"text"`
+		SupportedType bool   `json:"supported_type"`
+		Error         error  `json:"error,omitempty"`
 	}
 
 	file, header, err := c.Request.FormFile("file")
@@ -32,6 +33,7 @@ func apiAutoConvert(c *gin.Context) {
 	switch resp.MimeType {
 	// DOC
 	case "application/msword":
+		resp.SupportedType = true
 		text, _, err := docconv.ConvertDoc(bytes.NewReader(buf))
 		if err != nil {
 			resp.Error = err
@@ -40,6 +42,7 @@ func apiAutoConvert(c *gin.Context) {
 		resp.Text = text
 	// DOCX
 	case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+		resp.SupportedType = true
 		text, _, err := docconv.ConvertDocx(bytes.NewReader(buf))
 		if err != nil {
 			resp.Error = err
@@ -48,6 +51,7 @@ func apiAutoConvert(c *gin.Context) {
 		resp.Text = text
 	// ODT
 	case "application/vnd.oasis.opendocument.text":
+		resp.SupportedType = true
 		text, _, err := docconv.ConvertODT(bytes.NewReader(buf))
 		if err != nil {
 			resp.Error = err
@@ -56,7 +60,17 @@ func apiAutoConvert(c *gin.Context) {
 		resp.Text = text
 	// PDF
 	case "application/pdf":
+		resp.SupportedType = true
 		text, _, err := docconv.ConvertPDF(bytes.NewReader(buf))
+		if err != nil {
+			resp.Error = err
+			break
+		}
+		resp.Text = text
+	// RTF
+	case "text/rtf":
+		resp.SupportedType = true
+		text, _, err := docconv.ConvertRTF(bytes.NewReader(buf))
 		if err != nil {
 			resp.Error = err
 			break

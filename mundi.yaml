@@ -1,13 +1,13 @@
 # HTTP server
 http:
   enabled: true
-  address: '127.0.0.1'
+  address: '0.0.0.0'
   port: '25794'
 
 # HTTPS server
 https:
   enabled: false
-  address: '127.0.0.1'
+  address: '0.0.0.0'
   port: '25794'
   htst: true
   cert: 'cert.pem'
