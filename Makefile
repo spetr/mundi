@@ -17,4 +17,5 @@ update:
 	go get -u github.com/gin-contrib/static
 
 	go get -u github.com/vimeo/go-magic/magic
-	go get -u code.sajari.com/docconv
+	go get -u github.com/otiai10/gosseract
+	go get -tags ocr -u github.com/spetr/docconv

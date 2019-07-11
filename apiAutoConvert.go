@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"code.sajari.com/docconv"
 	"github.com/gin-gonic/gin"
+	"github.com/spetr/docconv"
 	"github.com/vimeo/go-magic/magic"
 )
 
@@ -31,6 +31,7 @@ func apiAutoConvert(c *gin.Context) {
 	resp.MimeType = magic.MimeFromBytes(buf)
 
 	switch resp.MimeType {
+
 	// DOC
 	case "application/msword":
 		resp.SupportedType = true
@@ -40,6 +41,7 @@ func apiAutoConvert(c *gin.Context) {
 			break
 		}
 		resp.Text = text
+
 	// DOCX
 	case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
 		resp.SupportedType = true
@@ -49,6 +51,7 @@ func apiAutoConvert(c *gin.Context) {
 			break
 		}
 		resp.Text = text
+
 	// ODT
 	case "application/vnd.oasis.opendocument.text":
 		resp.SupportedType = true
@@ -58,6 +61,7 @@ func apiAutoConvert(c *gin.Context) {
 			break
 		}
 		resp.Text = text
+
 	// PDF
 	case "application/pdf":
 		resp.SupportedType = true
@@ -67,6 +71,7 @@ func apiAutoConvert(c *gin.Context) {
 			break
 		}
 		resp.Text = text
+
 	// RTF
 	case "text/rtf":
 		resp.SupportedType = true
@@ -76,6 +81,38 @@ func apiAutoConvert(c *gin.Context) {
 			break
 		}
 		resp.Text = text
+
+	// HTML
+	case "text/html":
+		resp.SupportedType = true
+		text, _, err := docconv.ConvertHTML(bytes.NewReader(buf), true)
+		if err != nil {
+			resp.Error = err
+			break
+		}
+		resp.Text = text
+
+	// Apple Pages
+	// TODO - sprava detekce mime typu!!!
+	case "application/vnd.apple.pages":
+		resp.SupportedType = true
+		text, _, err := docconv.ConvertPages(bytes.NewReader(buf))
+		if err != nil {
+			resp.Error = err
+			break
+		}
+		resp.Text = text
+
+	// Image - OCR
+	case "image/jpeg", "image/png", "image/tiff", "image/gif":
+		resp.SupportedType = true
+		text, _, err := docconv.ConvertImage(bytes.NewReader(buf))
+		if err != nil {
+			resp.Error = err
+			break
+		}
+		resp.Text = text
+
 	}
 
 	c.JSON(http.StatusOK, resp)
