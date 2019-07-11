@@ -1,5 +1,8 @@
 all:
-	go build
+	go build -tags ocr -a -o mundi
+
+run:
+	./mundi
 
 docker:
 	docker build -t spetr/mundi .
